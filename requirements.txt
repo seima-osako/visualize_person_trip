@@ -1,0 +1,4 @@
+plotly
+ortools==9.5.2237
+streamlit==1.9.0
+streamlit-aggrid
