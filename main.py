@@ -72,7 +72,7 @@ tmp_df = gdf_car_possession[gdf_car_possession["都県名"] == prefecture][
 st.sidebar.write("### 計画基本ゾーン")
 
 o_kzone = st.sidebar.selectbox(
-    "Please select kzone",
+    "Please select o_kzone",
     tmp_df["着地"].tolist(),
 )
 st.sidebar.write("**計画基本ゾーン**とは小ゾーンを数個集めて構成し、広域における計画単位として、また地域としてのまとまりのある交通計画の単位となるゾーンレベル")
