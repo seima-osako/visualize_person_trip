@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 
 st.set_page_config(layout="wide")
-st.write("# 簡易Sim")
+#st.write("# 簡易Sim")
 
 df_distribution = pd.read_csv("data/co2_distribution.csv")
 
@@ -31,7 +31,7 @@ target_distribution = tmp_df[tmp_df["市区町村"] == city]
 
 st.sidebar.write("### 削減目標")
 reduction_goal = st.sidebar.slider(
-    "Please select reduction amount(1,000tCO2)", 0, 1000, 0, 1
+    "Please select reduction amount(1,000t-CO2)", 0, 1000, 0, 1
 )
 
 # =======================================================全国按分法=======================================================
@@ -57,9 +57,9 @@ co2_reduction_effect_1 = co2_2013 - co2_reduction_1
 
 df_show_1 = pd.DataFrame(
     data={
-        "col": ["2013年(ベースライン)", "2018年", "2030年(削減目標)", "施策結果", "削減効果"],
-        "val": [co2_2013, co2_2018, co2_goal, co2_reduction_1, co2_reduction_effect_1],
-        "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange", "DeepPink"],
+        "col": ["2013年(B)", "2018年(P_d)", "2030年(B–削減目標)", "施策結果(P'_d)"],
+        "val": [co2_2013, co2_2018, co2_goal, co2_reduction_1],
+        "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
 )
 fig_1 = go.Figure()
@@ -76,7 +76,7 @@ for r_1 in df_show_1.itertuples():
 fig_1.update_layout(
     template="simple_white",
     xaxis=dict(tickfont=dict(size=15)),
-    yaxis=dict(title="1,000 tCO2", tickfont=dict(size=20)),
+    yaxis=dict(title="1,000 t-CO2eq", tickfont=dict(size=20)),
 )
 
 col1, col2 = st.columns(2)
@@ -88,11 +88,15 @@ with col1:
     co2_reduction_effect_1 = "{:,}".format(co2_reduction_effect_1 * 1000)
     st.markdown(
         f"""
-        ### 登録自動車台数(2018年)
-        #### {possession_car_city_2018} / {possession_car_total_2018} 台
+        #### 登録自動車台数(2018年)
+        ### {possession_car_city_2018} / {possession_car_total_2018} 台
         
-        ### 削減効果（ベースラインとの差）
-        #### {co2_reduction_effect_1} tCO2
+        #### 削減効果（B – P'_d）
+    """
+    )
+    st.success(f"### {co2_reduction_effect_1} t-CO2eq")
+    st.markdown(
+        f"""
         ```
         ＜推計式＞
         市区町村のCO2排出量
@@ -208,15 +212,9 @@ co2_reduction_effect_2 = co2_2013 - co2_reduction_2
 
 df_show_2 = pd.DataFrame(
     data={
-        "col": ["2013年(ベースライン)", "2018年", "2030年(削減目標)", "施策結果", "削減効果"],
-        "val": [
-            co2_2013,
-            co2_2018_trip,
-            co2_goal,
-            co2_reduction_2,
-            co2_reduction_effect_2,
-        ],
-        "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange", "DeepPink"],
+        "col": ["2013年(B)", "2018年(P_f)", "2030年(B–削減目標)", "施策結果(P'_f)"],
+        "val": [co2_2013,co2_2018_trip,co2_goal,co2_reduction_2],
+        "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
 )
 fig_2 = go.Figure()
@@ -228,7 +226,7 @@ for r_2 in df_show_2.itertuples():
 fig_2.update_layout(
     template="simple_white",
     xaxis=dict(tickfont=dict(size=15)),
-    yaxis=dict(title="1,000 tCO2", tickfont=dict(size=20)),
+    yaxis=dict(title="1,000 t-CO2eq", tickfont=dict(size=20)),
 )
 
 col3, col4 = st.columns(2)
@@ -239,15 +237,19 @@ with col3:
     car_trip = "{:,}".format(car_trip)
     bus_new_trip = "{:,}".format(bus_new_trip)
     car_new_trip = "{:,}".format(car_new_trip)
-    co2_reduction_effect_2 = "{:,}".format(co2_reduction_effect_2)
+    co2_reduction_effect_2 = "{:,}".format(co2_reduction_effect_2 * 1000)
     st.markdown(
         f"""
-        ### トリップ数
+        #### トリップ数
         #### 自動車：バス＝{car_trip} ： {bus_trip}
         　　　　　　　　　**↓ 自動車からバスへの転換 or EV化**
         #### 自動車：バス＝{car_new_trip} ： {bus_new_trip}
-        ### 削減効果（ベースラインとの差）
-        #### {co2_reduction_effect_2} tCO2
+        #### 削減効果（B – P'_f）
+    """
+    )
+    st.success(f"### {co2_reduction_effect_2} t-CO2eq")
+    st.markdown(
+        """
         ```
         ＜推計式＞
         市区町村のCO2排出量
