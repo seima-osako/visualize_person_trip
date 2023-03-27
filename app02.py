@@ -16,7 +16,7 @@ df_distribution = pd.read_csv("data/co2_distribution.csv")
 
 prefecture = st.sidebar.selectbox(
     "Please select prefecture",
-    ("東京都", "神奈川県", "埼玉県", "千葉県", "茨城県"),
+    ("千葉県", "埼玉県", "東京都", "神奈川県", "茨城県"),
 )
 
 tmp_df = df_distribution[df_distribution["都道府県"] == prefecture]
@@ -30,14 +30,12 @@ target_distribution = tmp_df[tmp_df["市区町村"] == city]
 
 
 st.sidebar.write("### 削減目標")
-reduction_goal = st.sidebar.slider(
-    "Please select reduction amount(1,000t-CO2)", 0, 1000, 0, 1
-)
+reduction_goal = st.sidebar.slider("Please select reduction rate(%)", 0, 100, 10, 1)
 
 # =======================================================全国按分法=======================================================
 
 st.sidebar.write("### 登録自動車台数の削減")
-reduction_rate_car_1 = st.sidebar.slider("Automobile reduction rate(%)", 0, 100, 0, 1)
+reduction_rate_car_1 = st.sidebar.slider("Automobile reduction rate(%)", 0, 100, 10, 1)
 
 for r in target_distribution.itertuples():
     co2_2013 = r.CO2_2013
@@ -49,7 +47,7 @@ for r in target_distribution.itertuples():
 possession_car_city_goal = int(
     possession_car_city_2018 * ((100 - reduction_rate_car_1) / 100)
 )
-co2_goal = co2_2013 - reduction_goal
+co2_goal = int(co2_2013*(100-reduction_goal)/100)
 co2_reduction_1 = int(
     co2_total_2018 * possession_car_city_goal / possession_car_total_2018 * 3.67
 )
@@ -57,7 +55,7 @@ co2_reduction_effect_1 = co2_2013 - co2_reduction_1
 
 df_show_1 = pd.DataFrame(
     data={
-        "col": ["2013年(B)", "2018年(P_d)", "2030年(B–削減目標)", "施策結果(P'_d)"],
+        "col": ["2013年(B)", "2018年(P_d)", "2030年(B–削減目標)", "2018年 施策結果(P'_d)"],
         "val": [co2_2013, co2_2018, co2_goal, co2_reduction_1],
         "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
@@ -119,9 +117,9 @@ image = Image.open("data/fuel_table.png")
 st.sidebar.image(image, caption="【参考】燃費テーブル")
 
 st.sidebar.write("### モーダルシフト")
-modal_shift = st.sidebar.slider("Transition rate from car to bus(%)", 0, 100, 0, 1)
+modal_shift = st.sidebar.slider("Transition rate from car to bus(%)", -100, 100, 10, 1)
 st.sidebar.write("### EV化")
-reduction_rate_car_2 = st.sidebar.slider("EV conversion rate(%)", 0, 100, 0, 1)
+reduction_rate_car_2 = st.sidebar.slider("EV conversion rate(%)", 0, 100, 10, 1)
 
 df_od["バス_new_燃費"] = bus_fuel_economy
 df_od["自動車_new_燃費"] = car_fuel_economy
@@ -185,8 +183,12 @@ df["バス_CO2_daily"] = df.apply(lambda x: calc_co2(x, mode="バス"), axis=1)
 df["自動車_CO2_daily"] = df.apply(lambda x: calc_co2(x, mode="自動車"), axis=1)
 
 df["modal_shift"] = modal_shift
-df["自動車_middle"] = (df["自動車"] * ((100 - df["modal_shift"]) / 100)).astype(int)
-df["バス_new"] = df["バス"] + (df["自動車"] - df["自動車_middle"])
+if modal_shift >=0:
+    df['自動車_middle'] = (df['自動車']*((100-df['modal_shift'])/100)).astype(int)
+    df['バス_new'] = df['バス']
+else:
+    df['バス_new'] = (df['バス']*((100-df['modal_shift']*(-1))/100)).astype(int)
+    df['自動車_middle'] = (df['自動車'] + (df['バス']-df['バス_new'])).astype(int)
 
 df["rate"] = reduction_rate_car_2
 df["自動車_new"] = (df["自動車_middle"] * ((100 - df["rate"]) / 100)).astype(int)
@@ -212,7 +214,7 @@ co2_reduction_effect_2 = co2_2013 - co2_reduction_2
 
 df_show_2 = pd.DataFrame(
     data={
-        "col": ["2013年(B)", "2018年(P_f)", "2030年(B–削減目標)", "施策結果(P'_f)"],
+        "col": ["2013年(B)", "2018年(P_f)", "2030年(B–削減目標)", "2018年 施策結果(P'_f)"],
         "val": [co2_2013,co2_2018_trip,co2_goal,co2_reduction_2],
         "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
@@ -242,7 +244,7 @@ with col3:
         f"""
         #### トリップ数
         #### 自動車：バス＝{car_trip} ： {bus_trip}
-        　　　　　　　　　**↓ 自動車からバスへの転換 or EV化**
+        　　　　　　　　　**↓ 自動車⇄バス間のシフト or EV化**
         #### 自動車：バス＝{car_new_trip} ： {bus_new_trip}
         #### 削減効果（B – P'_f）
     """
@@ -267,8 +269,8 @@ target_kzone_list = gdf_car[
     (gdf_car["都県名"] == prefecture) & (gdf_car["市区町村名"].str.contains(city))
 ]["kzone"].tolist()
 
-st.warning("## ゾーン間の年間CO2排出量可視化")
-st.write("#### 対象の基本計画ゾーンを選択")
+st.warning("## ゾーン間の年間CO2排出量(1,000t-CO2eq)")
+st.write(f"#### {city}の基本計画ゾーン")
 target_kzone = o_kzone = st.selectbox("Please select target_kzone", target_kzone_list)
 
 df_o = (
