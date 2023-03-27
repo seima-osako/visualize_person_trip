@@ -36,7 +36,7 @@ reduction_goal = st.sidebar.slider(
 
 # =======================================================全国按分法=======================================================
 
-st.sidebar.write("### 登録自動車台数")
+st.sidebar.write("### 登録自動車台数の削減")
 reduction_rate_car_1 = st.sidebar.slider("Automobile reduction rate(%)", 0, 100, 0, 1)
 
 for r in target_distribution.itertuples():
@@ -112,7 +112,7 @@ with col2:
 # =======================================================燃費法=======================================================
 df_od = pd.read_csv("data/od_kzone_aggregation.csv")
 
-st.sidebar.write("### 燃費")
+st.sidebar.write("### 燃費改善（エコドライブ・渋滞解消）")
 car_fuel_economy = st.sidebar.number_input("自動車", value=10.3)
 bus_fuel_economy = st.sidebar.number_input("バス", value=4.96)
 image = Image.open("data/fuel_table.png")
