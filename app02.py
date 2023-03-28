@@ -16,7 +16,7 @@ df_distribution = pd.read_csv("data/co2_distribution.csv")
 
 prefecture = st.sidebar.selectbox(
     "Please select prefecture",
-    ("千葉県", "埼玉県", "東京都", "神奈川県", "茨城県"),
+    ( "神奈川県", "東京都", "埼玉県", "千葉県", "茨城県"),
 )
 
 tmp_df = df_distribution[df_distribution["都道府県"] == prefecture]
@@ -205,6 +205,8 @@ df["旅客_new_CO2_yearly"] = (
 bus_trip = df["バス"].sum()
 car_trip = df["自動車"].sum()
 co2_2018_trip = int(df["旅客_CO2_yearly"].sum() / 1000)
+co2_2013_trip = int(co2_2018_trip*co2_2013/co2_2018)
+co2_goal_trip = int(co2_2013_trip*(100-reduction_goal)/100)
 
 bus_new_trip = df["バス_new"].sum()
 car_new_trip = df["自動車_new"].sum()
@@ -214,8 +216,8 @@ co2_reduction_effect_2 = co2_2013 - co2_reduction_2
 
 df_show_2 = pd.DataFrame(
     data={
-        "col": ["2013年(B_f)", "2018年(P_f)", "2030年(B–削減目標)", "2018年 施策結果(P'_f)"],
-        "val": [int(co2_2018_trip*co2_2013/co2_2018),co2_2018_trip,co2_goal,co2_reduction_2],
+        "col": ["2013年(B_f)", "2018年(P_f)", "2030年(B_f–削減目標)", "2018年 施策結果(P'_f)"],
+        "val": [co2_2013_trip,co2_2018_trip,co2_goal_trip,co2_reduction_2],
         "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
 )
