@@ -55,7 +55,7 @@ co2_reduction_effect_1 = co2_2013 - co2_reduction_1
 
 df_show_1 = pd.DataFrame(
     data={
-        "col": ["2013年(B)", "2018年(P_d)", "2030年(B–削減目標)", "2018年 施策結果(P'_d)"],
+        "col": ["2013年(B_d)", "2018年(P_d)", "2030年(B_d–削減目標)", "2018年 施策結果(P'_d)"],
         "val": [co2_2013, co2_2018, co2_goal, co2_reduction_1],
         "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
@@ -89,7 +89,7 @@ with col1:
         #### 登録自動車台数(2018年)
         ### {possession_car_city_2018} / {possession_car_total_2018} 台
         
-        #### 削減効果（B – P'_d）
+        #### 削減効果（B_d – P'_d）
     """
     )
     st.success(f"### {co2_reduction_effect_1} t-CO2eq")
@@ -214,8 +214,8 @@ co2_reduction_effect_2 = co2_2013 - co2_reduction_2
 
 df_show_2 = pd.DataFrame(
     data={
-        "col": ["2013年(B)", "2018年(P_f)", "2030年(B–削減目標)", "2018年 施策結果(P'_f)"],
-        "val": [co2_2013,co2_2018_trip,co2_goal,co2_reduction_2],
+        "col": ["2013年(B_f)", "2018年(P_f)", "2030年(B–削減目標)", "2018年 施策結果(P'_f)"],
+        "val": [int(co2_2018_trip*co2_2013/co2_2018),co2_2018_trip,co2_goal,co2_reduction_2],
         "color": ["lightblue", "RoyalBlue", "SeaGreen", "orange"],
     }
 )
@@ -246,7 +246,7 @@ with col3:
         #### 自動車：バス＝{car_trip} ： {bus_trip}
         　　　　　　　　　**↓ 自動車⇄バス間のシフト or EV化**
         #### 自動車：バス＝{car_new_trip} ： {bus_new_trip}
-        #### 削減効果（B – P'_f）
+        #### 削減効果（B_f – P'_f）
     """
     )
     st.success(f"### {co2_reduction_effect_2} t-CO2eq")
